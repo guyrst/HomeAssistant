@@ -1,0 +1,356 @@
+blueprint:
+  name: gr_automation_v1
+  description: automatisme générique à associer à des entité de type on/off
+  domain: automation
+  author: Guy Rosati
+
+  input:
+
+    device_entity:
+      name: device_entity
+      description: controlled entity (switch, light, cover, aso)
+      selector:
+        entity:
+          multiple: false
+
+    timer_entity:
+      name: timer_entity
+      description: timer entity associated with the device entity. Should be use as timeout control
+      selector:
+        entity:
+          multiple: false
+          filter:
+            - domain: timer
+
+    visibility_timer_entity:
+      name: visibility_timer_entity
+      description: visibility timer is used to display or not some cards (optional)
+      selector:
+        entity:
+          multiple: false
+          filter:
+            - domain: timer
+
+    sunrise_offset:
+      name: sunrise_offset
+      description: sunrise trigger offset value as HH:MM:SS
+      default: "00:00:00"
+      selector:
+        text:
+          multiline: false
+
+    sunset_offset:
+      name: sunset_offset
+      description: sunset trigger offset value as HH:MM:SS
+      default: "00:00:00"
+      selector:
+        text:
+          multiline: false
+
+    time_slot1:
+      name: time_slot1
+      description: first trigger daily time value as HH:MM:SS
+      default: "00:00:00"
+      selector:
+        text:
+          multiline: false
+
+    time_slot2:
+      name: time_slot2
+      description: second trigger daily time value as HH:MM:SS
+      default: "00:01:00"
+      selector:
+        text:
+          multiline: false
+
+    ha_start_action:
+      name: ha_start_action
+      default: null
+      selector:
+        action:
+
+    ha_shutdown_action:
+      name: ha_shutdown_action
+      default: null
+      selector:
+        action:
+
+    state_from_off_to_on_action:
+      name: state_from_off_to_on_action
+      default: null
+      selector:
+        action:
+
+    state_from_on_to_off_action:
+      name: state_from_on_to_off_action
+      default: null
+      selector:
+        action:
+
+    state_from_idle_to_active_action:
+      name: state_from_idle_to_active_action
+      description: timer entity only
+      default: null
+      selector:
+        action:
+
+    state_from_active_to_idle_action:
+      name: state_from_active_to_idle_action
+      description: timer entity only
+      default: null
+      selector:
+        action:
+
+    state_from_open_to_closing_action:
+      name: state_from_open_to_closing_action
+      description: cover entity only
+      default: null
+      selector:
+        action:
+
+    state_from_closing_to_closed_action:
+      name: state_from_closing_to_closed_action
+      description: cover entity only
+      default: null
+      selector:
+        action:
+
+    state_from_closed_to_opening_action:
+      name: state_from_closed_to_opening_action
+      description: cover entity only
+      default: null
+      selector:
+        action:
+
+    state_from_opening_to_open_action:
+      name: state_from_opening_to_open_action
+      description: cover entity only
+      default: null
+      selector:
+        action:
+
+    sunrise_action:
+      name: sunrise_action
+      default: null
+      selector:
+        action:
+
+    sunset_action:
+      name: sunset_action
+      default: null
+      selector:
+        action:
+
+    time_slot1_action:
+      name: time_slot1_action
+      default: null
+      selector:
+        action:
+
+    time_slot2_action:
+      name: time_slot2_action
+      default: null
+      selector:
+        action:
+
+    schedule_tag_change_action:
+      name: schedule_tag_change_action
+      default: null
+      selector:
+        action:
+
+    conditions:
+      name: conditions
+      default: null
+      selector:
+        condition:
+
+
+mode: queued
+
+triggers:
+
+  - trigger: homeassistant    # homeassistant start
+    event: start
+    id: ha_start
+
+  - trigger: homeassistant    # homeassistant shutdown
+    event: shutdown
+    id: ha_shutdown
+
+  - trigger: state            # state_from_off_to_on
+    entity_id: !input device_entity
+    from: "off"
+    to: "on"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: state_from_off_to_on
+
+  - trigger: state            # state_from_on_to_off
+    entity_id: !input device_entity
+    from: "on"
+    to: "off"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: state_from_on_to_off
+
+  - trigger: state            # state_from_open_to_closing
+    entity_id: !input device_entity
+    from: "open"
+    to: "closing"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: state_from_open_to_closing
+
+  - trigger: state            # state_from_closing_to_closed
+    entity_id: !input device_entity
+    from: "closing"
+    to: "closed"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: state_from_closing_to_closed
+
+  - trigger: state            # state_from_closed_to_opening
+    entity_id: !input device_entity
+    from: "closed"
+    to: "opening"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: state_from_closed_to_opening
+
+  - trigger: state            # state_from_opening_to_open
+    entity_id: !input device_entity
+    from: "opening"
+    to: "open"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: state_from_opening_to_open
+
+  - trigger: state            # state_from_idle_to_active
+    entity_id: !input timer_entity
+    from: "idle"
+    to: "active"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+    id: state_from_idle_to_active
+
+  - trigger: state            # state_from_active_to_idle
+    entity_id: !input timer_entity
+    from: "active"
+    to: "idle"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+    id: state_from_active_to_idle
+
+  - trigger: sun              # sun_sunrise
+    event: sunrise
+    offset: !input sunrise_offset
+    id: sunrise
+
+  - trigger: sun              # sun_sunset
+    event: sunset
+    offset: !input sunset_offset
+    id: sunset
+
+  - trigger: time             # time_slot_1
+    at: !input time_slot1
+    id: time_slot1
+
+  - trigger: time             # time_slot_2
+    at: !input time_slot2
+    id: time_slot2
+
+  - trigger: event            # event schedule tag change
+    event_type: schedule_tag_change
+    id: schedule_tag_change
+
+
+
+conditions: !input conditions
+actions:
+  - choose:
+      - conditions:           # ha_start_action
+          - condition: template
+            value_template: "{{trigger.id == 'ha_start'}}"
+        sequence: !input ha_start_action
+
+      - conditions:           # ha_shutdown_action
+          - condition: template
+            value_template: "{{trigger.id == 'ha_shutdown'}}"
+        sequence: !input ha_shutdown_action
+
+      - conditions:           # state_from_off_to_on_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_off_to_on'}}"
+        sequence: !input state_from_off_to_on_action
+
+      - conditions:           # state_from_on_to_off_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_on_to_off'}}"
+        sequence: !input state_from_on_to_off_action
+
+      - conditions:           # state_from_idle_to_active_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_idle_to_active'}}"
+        sequence: !input state_from_idle_to_active_action
+
+      - conditions:           # state_from_active_to_idle_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_active_to_idle'}}"
+        sequence: !input state_from_active_to_idle_action
+
+      - conditions:           # state_from_open_to_closing_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_open_to_closing'}}"
+        sequence: !input state_from_open_to_closing_action
+
+      - conditions:           # state_from_closing_to_closed_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_closing_to_closed'}}"
+        sequence: !input state_from_closing_to_closed_action
+
+      - conditions:           # state_from_closed_to_opening_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_closed_to_opening'}}"
+        sequence: !input state_from_closed_to_opening_action
+
+      - conditions:           # state_from_opening_to_open_action
+          - condition: template
+            value_template: "{{trigger.id == 'state_from_opening_to_open'}}"
+        sequence: !input state_from_opening_to_open_action
+
+      - conditions:           # sunrise_action
+          - condition: template
+            value_template: "{{trigger.id == 'sunrise'}}"
+        sequence: !input sunrise_action
+
+      - conditions:           # sunset_action
+          - condition: template
+            value_template: "{{trigger.id == 'sunset'}}"
+        sequence: !input sunset_action
+
+      - conditions:           # time_slot1_action
+          - condition: template
+            value_template: "{{trigger.id == 'time_slot1'}}"
+        sequence: !input time_slot1_action
+
+      - conditions:           # time_slot2_action
+          - condition: template
+            value_template: "{{trigger.id == 'time_slot2'}}"
+        sequence: !input time_slot2_action
