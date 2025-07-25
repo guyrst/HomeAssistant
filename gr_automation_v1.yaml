@@ -3,6 +3,7 @@ blueprint:
   description: automatisme générique à associer à des entité de type on/off
   domain: automation
   author: Guy Rosati
+  source_url: https://github.com/guyrst/HomeAssistant/blob/main/gr_automation_v1.yaml
 
   input:
 
@@ -165,7 +166,6 @@ blueprint:
       selector:
         condition:
 
-
 mode: queued
 
 triggers:
@@ -280,9 +280,8 @@ triggers:
     event_type: schedule_tag_change
     id: schedule_tag_change
 
-
-
 conditions: !input conditions
+
 actions:
   - choose:
       - conditions:           # ha_start_action
